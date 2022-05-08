@@ -1,4 +1,4 @@
-### PythonIDE
+# PythonIDE
 
 - Idea of this project was, to create IDE to design and edit code in one place
 - You can drag&drop components like "button", "textBox", "input" etc. on your Form
@@ -8,4 +8,4 @@
 ## Add your own component
 - This framework allow to add any component by adding XML structure to the project
 
-#### This is first vestion of this info - It will be updated soon ;)
+### This is first vestion of this info - It will be updated soon ;)
