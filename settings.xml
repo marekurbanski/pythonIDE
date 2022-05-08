@@ -1,0 +1,9 @@
+<SettingsIDE id="1.1">
+    <mainWindow>
+        <dimension width="1500" height="1000"></dimension>
+        <panels>
+            <logs height="150"></logs>
+            <components width="200"></components>
+        </panels>
+    </mainWindow>
+</SettingsIDE>
