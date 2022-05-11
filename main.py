@@ -11,6 +11,10 @@ from classes import logClass
 import random
 # pip3 install PyPubSub
 from pubsub import pub
+from panels.objectInspector import objectInspectorParams
+from panels.projectFiles import projectFiles
+from panels.designPanel import designPanel
+
 
 class TabPanel(wx.Panel):
     def __init__(self, parent, name):
@@ -94,12 +98,19 @@ class mainIDE(wx.Frame):
         tabFiles = TabPanel(self.notebookLeft, name='Tab 1')
         self.notebookLeft.AddPage(tabFiles, "Files")
         tabComponents = TabPanel(self.notebookLeft, name='Tab 2')
-        self.notebookLeft.AddPage(tabComponents, "Console")
+        self.notebookLeft.AddPage(tabComponents, "Components")
 
         pboxTabComponents = wx.BoxSizer(wx.VERTICAL)
         pboxTabComponents.Add(self.notebookLeft, 1, flag=wx.EXPAND)
         panelComponents.SetSizer(pboxTabComponents)
 
+
+        ###### file tree ######
+        filesTree = projectFiles.projectFiles(tabFiles)
+
+        pboxFiles = wx.BoxSizer(wx.VERTICAL)
+        pboxFiles.Add(filesTree.filesTree, 1, flag=wx.EXPAND)
+        tabFiles.SetSizer(pboxFiles)
 
 
 
@@ -135,12 +146,36 @@ class mainIDE(wx.Frame):
         pbox6.Add(text3, 1, flag=wx.EXPAND)
         panelFiles.SetSizer(pbox6)
 
+        ############################################## Right Object inspector / Structure  panel #################################################
 
-        pnl3 = wx.Panel(self,  style=wx.NO_BORDER)
+        panelObjectInspectorStructure = wx.Panel(self,  style=wx.NO_BORDER)
         pbox3 = wx.BoxSizer(wx.VERTICAL)
-        text3 = wx.TextCtrl(pnl3, -1, "Dockable3", style=wx.NO_BORDER | wx.TE_MULTILINE)
-        pbox3.Add(text3, 1, flag=wx.EXPAND)
-        pnl3.SetSizer(pbox3)
+        w = int(config.settings.get(self, 'mainWindow/panels/objectInspector', 'width') or 200)
+        size = panelComponents.FromDIP((w, 200))
+        panelObjectInspectorStructure.SetSize(size)
+
+        #text3 = wx.TextCtrl(panelObjectInspectorStructure, -1, "Dockable3", style=wx.NO_BORDER | wx.TE_MULTILINE)
+        #pbox3.Add(text3, 1, flag=wx.EXPAND)
+        #panelObjectInspectorStructure.SetSizer(pbox3)
+
+        #### adding tabs
+        self.notebookRight = wx.Notebook(panelObjectInspectorStructure)
+        # self.notebook.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.on_tab_change)
+        tabObjectInspector = TabPanel(self.notebookRight, name='Tab 1')
+        self.notebookRight.AddPage(tabObjectInspector, "Object Inspector")
+        tabObjectEvents = TabPanel(self.notebookRight, name='Tab 2')
+        self.notebookRight.AddPage(tabObjectEvents, "Events")
+
+        pboxTabObjectInspectorStructure = wx.BoxSizer(wx.VERTICAL)
+        pboxTabObjectInspectorStructure.Add(self.notebookRight, 1, flag=wx.EXPAND)
+        panelObjectInspectorStructure.SetSizer(pboxTabObjectInspectorStructure)
+
+        x = objectInspectorParams.objectInspectorParams(tabObjectInspector)
+        pbox = wx.BoxSizer(wx.VERTICAL)
+        pbox.Add(x, 1, flag=wx.EXPAND)
+        tabObjectInspector.SetSizer(pbox)
+
+
 
         pnl4 = wx.Panel(self,  style=wx.NO_BORDER)
         pbox4 = wx.BoxSizer(wx.VERTICAL)
@@ -148,11 +183,13 @@ class mainIDE(wx.Frame):
         pbox4.Add(text4, 1, flag=wx.EXPAND)
         pnl4.SetSizer(pbox4)
 
+        ##### Panel for edit files / design objects
         pnl5 = wx.Panel(self)
         pbox5 = wx.BoxSizer(wx.VERTICAL)
-        text5 = wx.TextCtrl(pnl5, -1, "Dockable5", style=wx.NO_BORDER | wx.TE_MULTILINE)
-        pbox5.Add(text5, 1, flag=wx.EXPAND)
-        pnl5.SetSizer(pbox5)
+        #text5 = wx.TextCtrl(pnl5, -1, "Dockable5", style=wx.NO_BORDER | wx.TE_MULTILINE)
+        #pbox5.Add(text5, 1, flag=wx.EXPAND)
+        #pnl5.SetSizer(pbox5)
+        designPanel.designPanel(pnl5)
 
 
         info1 = wx.aui.AuiPaneInfo().Bottom()
@@ -163,7 +200,7 @@ class mainIDE(wx.Frame):
         info6 = wx.aui.AuiPaneInfo().Left()
         self.mgr.AddPane(panelLogs, info1)
         self.mgr.AddPane(panelComponents, info2)
-        self.mgr.AddPane(pnl3, info3)
+        self.mgr.AddPane(panelObjectInspectorStructure, info3)
         self.mgr.AddPane(pnl4, info4)
         self.mgr.AddPane(pnl5, info5)
         self.mgr.AddPane(panelFiles, info6)

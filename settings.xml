@@ -4,6 +4,7 @@
         <panels>
             <logs height="150"></logs>
             <components width="200"></components>
+            <objectInspector width="300"></objectInspector>
         </panels>
     </mainWindow>
 </SettingsIDE>
