@@ -5,7 +5,7 @@
 - Every compnent you can edit by actions "onClick" - IDE will add code for this action
 - You can add you own style for every component by editing ObjectInspector
 
-![First view](https://github.com/marekurbanski/pythonIDE/blob/[branch]/image.jpg?raw=true)
+![v0 1](https://user-images.githubusercontent.com/1204259/168398016-a92ef627-3600-4c04-bcd3-7f97588cc7c8.png)
 
 ## Add your own component
 - This framework allow to add any component by adding XML structure to the project
