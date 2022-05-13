@@ -3,6 +3,7 @@ import wx.aui
 import wx.py
 import os
 import sys
+from pubsub import pub
 from panels.menu import menu
 import wx.lib.scrolledpanel
 from classes import settingsClass as config
@@ -10,10 +11,24 @@ from classes import logClass
 #from xml.dom import minidom
 import random
 # pip3 install PyPubSub
-from pubsub import pub
 from panels.objectInspector import objectInspectorParams
 from panels.projectFiles import projectFiles
 from panels.designPanel import designPanel
+import wx.richtext as richtext
+
+applicationWidth = 1
+applicationHeight = 1
+
+
+def change_size(frame):
+    frame.SetSize(wx.Size(100, 100))
+
+def size_change(event):
+    width, height = event.GetSize()
+    applicationWidth = width
+    applicationHeight = height
+    print("Width =", width, "Height =", height)
+
 
 
 class TabPanel(wx.Panel):
@@ -31,6 +46,9 @@ class TabPanel(wx.Panel):
 
 class mainIDE(wx.Frame):
 
+    applicationWidth = 0
+    applicationHeight = 0
+
     def OnQuit(self, e):
         self.Close()
 
@@ -42,10 +60,10 @@ class mainIDE(wx.Frame):
         super(mainIDE, self).__init__(parent)
         #logClass.log.Debug(self, "Starting IDE")
         #settingsClass.settings.LoadSettingsFile(self)
-        w = int(config.settings.get(self, 'mainWindow/dimension','width') or 600)
-        h = int(config.settings.get(self, 'mainWindow/dimension', 'height') or 400)
+        self.applicationWidth = int(config.settings.get(self, 'mainWindow/dimension','width') or 600)
+        self.applicationHeight = int(config.settings.get(self, 'mainWindow/dimension', 'height') or 400)
 
-        self.SetSize((w, h))
+        self.SetSize((self.applicationWidth, self.applicationHeight))
         self.SetTitle('PythonIDE')
         self.Centre()
 
@@ -76,7 +94,9 @@ class mainIDE(wx.Frame):
         pbox = wx.BoxSizer(wx.HORIZONTAL)
         pbox.Add(self.textLog, 1, flag=wx.EXPAND)
         tabLog.SetSizer(pbox)
+        # eventHandler for adding logs
         pub.subscribe(self.addLog, 'add_log')
+
 
         #app = wx.App(False)
         #frm = wx.Frame(tabTwo, 1, "wxPyShell")
@@ -104,7 +124,6 @@ class mainIDE(wx.Frame):
         pboxTabComponents.Add(self.notebookLeft, 1, flag=wx.EXPAND)
         panelComponents.SetSizer(pboxTabComponents)
 
-
         ###### file tree ######
         filesTree = projectFiles.projectFiles(tabFiles)
 
@@ -129,7 +148,6 @@ class mainIDE(wx.Frame):
             bmp = wx.Bitmap('components/classic-button/icon.png')
             self.st = wx.Button(panelComponentsScroll, id=1, label=str(x) + "Classic Button", pos=(20, 20), size=(150, 30), name="button")
             self.st.SetBitmap(bmp)
-            self.SetTitle('wx.Button')
             bSizer.Add(self.st, 0, wx.ALL, 0)
             #self.Centre()
         panelComponentsScroll.SetSizer(bSizer)
@@ -142,7 +160,7 @@ class mainIDE(wx.Frame):
 
         panelFiles = wx.Panel(self,  style=wx.NO_BORDER)
         pbox6 = wx.BoxSizer(wx.VERTICAL)
-        text3 = wx.TextCtrl(panelFiles, -1, "Files", style=wx.NO_BORDER | wx.TE_MULTILINE)
+        text3 = wx.TextCtrl(panelFiles, -1, "Place for structure tree with Designer Form", style=wx.NO_BORDER | wx.TE_MULTILINE)
         pbox6.Add(text3, 1, flag=wx.EXPAND)
         panelFiles.SetSizer(pbox6)
 
@@ -179,17 +197,38 @@ class mainIDE(wx.Frame):
 
         pnl4 = wx.Panel(self,  style=wx.NO_BORDER)
         pbox4 = wx.BoxSizer(wx.VERTICAL)
-        text4 = wx.TextCtrl(pnl4, -1, "Dockable4", style=wx.NO_BORDER | wx.TE_MULTILINE)
+        text4 = wx.TextCtrl(pnl4, -1, "Place for buttons like 'Run', 'Compile'...", style=wx.NO_BORDER | wx.TE_MULTILINE)
         pbox4.Add(text4, 1, flag=wx.EXPAND)
         pnl4.SetSizer(pbox4)
 
-        ##### Panel for edit files / design objects
-        pnl5 = wx.Panel(self)
-        pbox5 = wx.BoxSizer(wx.VERTICAL)
-        #text5 = wx.TextCtrl(pnl5, -1, "Dockable5", style=wx.NO_BORDER | wx.TE_MULTILINE)
-        #pbox5.Add(text5, 1, flag=wx.EXPAND)
-        #pnl5.SetSizer(pbox5)
-        designPanel.designPanel(pnl5)
+        ############################################## Panel for edit files / design objects #################################################
+        panelDesignEdit = wx.Panel(self)
+        pboxNotebookEdit = wx.BoxSizer(wx.VERTICAL)
+
+        self.notebookEdit = wx.Notebook(panelDesignEdit)
+
+        pboxNotebookEdit.Add(self.notebookEdit, 1, flag=wx.EXPAND)
+        panelDesignEdit.SetSizer(pboxNotebookEdit)
+
+        # self.notebook.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.on_tab_change)
+
+
+        # eventHandler for adding logs
+        #pub.subscribe(self.addLog, 'add_log')
+
+        designfiles = designPanel.designPanel(self.notebookEdit)
+        """
+        xOI,yOI = panelObjectInspectorStructure.GetSize()
+        xPC, yPC = panelComponents.GetSize()
+        xPL, yPL = panelLogs.GetSize()
+        print(self.GetParent())
+        parentWidth, parentHeight = panelLogs.GetSize()
+        x = self.applicationWidth - xOI - xPC - 20
+        y = self.applicationHeight - yPL - 120
+        print(x,y)
+        """
+        #print("APP Size:",getAppSizeX())
+        designfiles.setData(self.notebookEdit, panelDesignEdit, panelDesignEdit, panelComponents, pboxNotebookEdit)
 
 
         info1 = wx.aui.AuiPaneInfo().Bottom()
@@ -202,8 +241,10 @@ class mainIDE(wx.Frame):
         self.mgr.AddPane(panelComponents, info2)
         self.mgr.AddPane(panelObjectInspectorStructure, info3)
         self.mgr.AddPane(pnl4, info4)
-        self.mgr.AddPane(pnl5, info5)
+        self.mgr.AddPane(panelDesignEdit, info5)
         self.mgr.AddPane(panelFiles, info6)
+
+
 
         #panel = wx.Panel(self)
         #text2 = wx.TextCtrl(panel, size=(300, 200), style=wx.NO_BORDER | wx.TE_MULTILINE)
@@ -224,6 +265,7 @@ class mainIDE(wx.Frame):
         self.Destroy()
 
 
-app = wx.App()
-mainIDE(None, "PythonIDE")
+app = wx.App(False)
+mainide = mainIDE(None, "PythonIDE")
+mainide.Bind(wx.EVT_SIZE, size_change)
 app.MainLoop()

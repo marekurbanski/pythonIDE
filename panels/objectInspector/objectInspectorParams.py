@@ -52,7 +52,7 @@ class objectInspectorParams(wx.Panel):
         #self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.onSelect)
 
         for i in range(50):
-            self.ul.InsertStringItem(i, "name " + str(i))
+            self.ul.InsertStringItem(i, "param " + str(i) + " from XML")
             if i % 2:
                 color = self.dark_gray
             else:

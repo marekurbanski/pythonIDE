@@ -10,12 +10,12 @@ def CreateMenu(self):
 
     newitem = wx.MenuItem(fileMenu, wx.ID_NEW, text="File", kind=wx.ITEM_NORMAL)
     # newitem.SetBitmap(wx.Bitmap("new.bmp"))
-    fileMenu.AppendItem(newitem)
+    fileMenu.Append(newitem)
     fileMenu.AppendSeparator()
 
     newitem2 = wx.MenuItem(fileMenu, wx.ID_NEW, text="File2", kind=wx.ITEM_NORMAL)
     # newitem.SetBitmap(wx.Bitmap("new.bmp"))
-    fileMenu.AppendItem(newitem2)
+    fileMenu.Append(newitem2)
     fileMenu.AppendSeparator()
 
     menubar.Append(fileMenu, '&File')

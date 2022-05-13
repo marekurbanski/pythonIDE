@@ -1,0 +1,26 @@
+<object>
+    <name value="Classis Button"></name>
+    <object-inspector>
+        <text type="string" value="Button" label="Value"></text>
+        <dimensions type="integer">
+            <width min="10" max="" value="100" label="Width"></width>
+            <height min="10" max="" value="50" label="Height"></height>
+        </dimensions>
+        <style>
+            <background-color type="string" value="" label="Background color"></background-color>
+            <font-color type="string" value="" label="Font color"></font-color>
+            <font-family type="string" value="" label="Font family"></font-family>
+            <font-size type="integer" min="1" max="100" value="12" label="Font size"></font-size>
+            <readonly type="checkbox" label="Read only"></readonly>
+            <anchors type="droplist" label="Anchord">
+                <option value="left" text="Left"></option>
+                <option value="right" text="Right"></option>
+            </anchors>
+        </style>
+    </object-inspector>
+
+    <events>
+        <onClick label="OnClick" type="method"></onClick>
+        <onStartDrag label="OnStartDrag " type="method"></onStartDrag>
+    </events>
+</object>
